@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 from .config import settings
 from psycopg2.extras import RealDictCursor
+from . import utils
 
 app = FastAPI()
 
@@ -35,6 +36,10 @@ class User(BaseModel):
 @app.post("/users", status_code=status.HTTP_201_CREATED)
 async def root(user: User):
     print(user)
+
+    hashed_password = utils.hash_password(user.password)
+
+    user.password = hashed_password
 
     cur.execute("INSERT INTO users (email, password) VALUES (%s, %s) RETURNING *",
                 (user.email, user.password))
