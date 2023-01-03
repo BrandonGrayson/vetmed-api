@@ -1,10 +1,11 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
 from .config import settings
 from psycopg2.extras import RealDictCursor
-from . import utils
+from . import utils, oauth2, schemas
+
 
 app = FastAPI()
 
@@ -46,3 +47,27 @@ async def root(user: User):
     user_details = cur.fetchone()
     conn.commit()
     return user_details
+
+
+@app.post('/login')
+def login(user_credentials: User):
+    cur.execute('SELECT * FROM users WHERE email = (%s)',
+                user_credentials.email)
+    user = cur.fetchone()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials")
+
+    if not utils.verify_password(user_credentials.password, user['password']):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail=f"Invalid Credentials")
+
+    access_token = oauth2.create_access_token(data={"user_id": user['id']})
+
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.post('/medications')
+def add_medication(medication: schemas.Medication):
+    print(medication)
