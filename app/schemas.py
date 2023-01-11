@@ -7,7 +7,7 @@ class Token(BaseModel):
 
 
 class Medication(BaseModel):
-    medication: str
+    medicationName: str
     description: str
     usedFor: str
     dontTakeWith: list[str]
