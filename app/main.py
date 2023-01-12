@@ -69,13 +69,17 @@ def login(user_credentials: User):
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@app.post('/medications')
+@app.post('/medications', status_code=status.HTTP_201_CREATED)
 def add_medication(medication: schemas.Medication):
     print(medication)
 
     cur.execute("INSERT INTO medications (medication, description, used_for, dont_take_with) VALUES (%s, %s, %s, %s) RETURNING * ",
                 (medication.medicationName, medication.description, medication.usedFor, medication.dontTakeWith))
     new_med = cur.fetchone()
+
+    if not new_med:
+        raise HTTPException(status_code=404, detail="Item not found")
+
     conn.commit()
 
     return new_med
