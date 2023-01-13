@@ -73,8 +73,8 @@ def login(user_credentials: User):
 def add_medication(medication: schemas.Medication):
     print(medication)
 
-    cur.execute("INSERT INTO medications (medication, description, used_for, dont_take_with) VALUES (%s, %s, %s, %s) RETURNING * ",
-                (medication.medicationName, medication.description, medication.usedFor, medication.dontTakeWith))
+    cur.execute("INSERT INTO medications (name, description, used_for, dont_take_with, user_id) VALUES (%s, %s, %s, %s, %s) RETURNING * ",
+                (medication.name, medication.description, medication.usedFor, medication.dontTakeWith, medication.user_id))
     new_med = cur.fetchone()
 
     if not new_med:
