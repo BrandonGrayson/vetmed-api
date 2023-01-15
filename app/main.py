@@ -30,13 +30,12 @@ except Exception as error:
     print("Error", error)
 
 
-class User(BaseModel):
-    email: str
-    password: str
+def get_user(email):
+    cur.execute("SELECT FROM users WHERE email")
 
 
 @app.post("/users", status_code=status.HTTP_201_CREATED)
-async def root(user: User):
+async def root(user: schemas.User):
     print(user)
 
     hashed_password = utils.hash_password(user.password)
@@ -51,10 +50,13 @@ async def root(user: User):
 
 
 @app.post('/login')
-def login(user_credentials: User):
+async def login(user_credentials: schemas.User):
+    print('user cred', user_credentials)
     cur.execute('SELECT * FROM users WHERE email = (%s)',
-                user_credentials.email)
+                (user_credentials.email,))
     user = cur.fetchone()
+
+    print('user', user)
 
     if not user:
         raise HTTPException(

@@ -15,7 +15,12 @@ class Medication(BaseModel):
 
 
 class MedicationOut(Medication):
-    medication: str
+    name: str
     description: str
     used_For: str
     dont_take_with: list[str]
+
+
+class User(BaseModel):
+    email: str
+    password: str
