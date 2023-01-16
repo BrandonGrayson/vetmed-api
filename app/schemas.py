@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class Token(BaseModel):
@@ -24,3 +25,7 @@ class MedicationOut(Medication):
 class User(BaseModel):
     email: str
     password: str
+
+
+class TokenData(BaseModel):
+    id: Optional[str] = None

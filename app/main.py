@@ -31,7 +31,15 @@ except Exception as error:
 
 
 def get_user(email):
-    cur.execute("SELECT FROM users WHERE email")
+    cur.execute("SELECT FROM users WHERE email = (%s)", (email))
+
+    user = cur.fetchone()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Credentials")
+
+    return user
 
 
 @app.post("/users", status_code=status.HTTP_201_CREATED)
