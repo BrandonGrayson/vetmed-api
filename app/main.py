@@ -1,4 +1,4 @@
-from fastapi import FastAPI, status, HTTPException
+from fastapi import FastAPI, status, HTTPException, Depends
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import psycopg2
@@ -30,21 +30,8 @@ except Exception as error:
     print("Error", error)
 
 
-def get_user(email):
-    cur.execute("SELECT FROM users WHERE email = (%s)", (email))
-
-    user = cur.fetchone()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Credentials")
-
-    return user
-
-
 @app.post("/users", status_code=status.HTTP_201_CREATED)
 async def root(user: schemas.User):
-    print(user)
 
     hashed_password = utils.hash_password(user.password)
 
@@ -59,12 +46,10 @@ async def root(user: schemas.User):
 
 @app.post('/login')
 async def login(user_credentials: schemas.User):
-    print('user cred', user_credentials)
+    print('user creds', user_credentials)
     cur.execute('SELECT * FROM users WHERE email = (%s)',
                 (user_credentials.email,))
     user = cur.fetchone()
-
-    print('user', user)
 
     if not user:
         raise HTTPException(
@@ -80,8 +65,7 @@ async def login(user_credentials: schemas.User):
 
 
 @app.post('/medications', status_code=status.HTTP_201_CREATED)
-def add_medication(medication: schemas.Medication):
-    print(medication)
+def add_medication(medication: schemas.Medication, user_id: int = Depends(oauth2.get_current_user)):
 
     cur.execute("INSERT INTO medications (name, description, used_for, dont_take_with, user_id) VALUES (%s, %s, %s, %s, %s) RETURNING * ",
                 (medication.name, medication.description, medication.usedFor, medication.dontTakeWith, medication.user_id))
@@ -93,3 +77,8 @@ def add_medication(medication: schemas.Medication):
     conn.commit()
 
     return new_med
+
+
+@app.get('/medications')
+async def get_medications(user_id: int = Depends(oauth2.get_current_user)):
+    print('user id', user_id)
