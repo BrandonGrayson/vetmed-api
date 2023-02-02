@@ -8,10 +8,10 @@ class Token(BaseModel):
 
 
 class Medication(BaseModel):
-    medicationName: str
+    name: str
     description: str
-    usedFor: str
-    dontTakeWith: list[str]
+    used_for: str
+    dont_take_with: list[str]
 
 
 class MedicationOut(Medication):

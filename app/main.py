@@ -72,7 +72,7 @@ def add_medication(medication: schemas.Medication, user_id: int = Depends(oauth2
     print(type(user_id))
     # print(int(user_id))
     cur.execute("INSERT INTO medications (name, description, used_for, dont_take_with, user_id) VALUES (%s, %s, %s, %s, %s) RETURNING * ",
-                (medication.medicationName, medication.description, medication.usedFor, medication.dontTakeWith, user_id))
+                (medication.name, medication.description, medication.used_for, medication.dont_take_with, user_id))
     new_med = cur.fetchone()
 
     if not new_med:
