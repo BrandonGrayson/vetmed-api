@@ -33,7 +33,12 @@ def verify_access_token(token: str, credentials_exception):
 
         if id is None:
             raise credentials_exception
-        token_data = schemas.TokenData(id=id)
+        # Throws an error. Class TokenData not able to be used as a field when being sent to db. Some conversion
+        # needed unsure of what that is though
+        # token_data = schemas.TokenData(id=id)
+        token_data = id
+
+        print('token Data', token_data)
 
     except JWTError:
         raise credentials_exception

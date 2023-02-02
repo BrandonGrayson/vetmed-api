@@ -67,8 +67,12 @@ async def login(user_credentials: schemas.User):
 @app.post('/medications', status_code=status.HTTP_201_CREATED)
 def add_medication(medication: schemas.Medication, user_id: int = Depends(oauth2.get_current_user)):
 
+    print('medication', medication)
+    print('user id', user_id)
+    print(type(user_id))
+    # print(int(user_id))
     cur.execute("INSERT INTO medications (name, description, used_for, dont_take_with, user_id) VALUES (%s, %s, %s, %s, %s) RETURNING * ",
-                (medication.name, medication.description, medication.usedFor, medication.dontTakeWith, medication.user_id))
+                (medication.medicationName, medication.description, medication.usedFor, medication.dontTakeWith, user_id))
     new_med = cur.fetchone()
 
     if not new_med:
