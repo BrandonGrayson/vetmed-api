@@ -46,7 +46,6 @@ async def root(user: schemas.User):
 
 @app.post('/login')
 async def login(user_credentials: schemas.User):
-    print('user creds', user_credentials)
     cur.execute('SELECT * FROM users WHERE email = (%s)',
                 (user_credentials.email,))
     user = cur.fetchone()
@@ -67,10 +66,6 @@ async def login(user_credentials: schemas.User):
 @app.post('/medications', status_code=status.HTTP_201_CREATED)
 def add_medication(medication: schemas.Medication, user_id: int = Depends(oauth2.get_current_user)):
 
-    # print('medication', medication)
-    # print('user id', user_id)
-    # print(type(user_id))
-    # print(int(user_id))
     cur.execute("INSERT INTO medications (name, description, used_for, dont_take_with, user_id) VALUES (%s, %s, %s, %s, %s) RETURNING * ",
                 (medication.name, medication.description, medication.used_for, medication.dont_take_with, user_id))
     new_med = cur.fetchone()
@@ -85,11 +80,8 @@ def add_medication(medication: schemas.Medication, user_id: int = Depends(oauth2
 
 @app.get('/medications')
 async def get_medications(user_id: int = Depends(oauth2.get_current_user)):
-    print('user id', user_id)
-    print('get function complete')
     cur.execute("SELECT * FROM medications WHERE user_id=(%s)", (user_id,))
 
     medications = cur.fetchall()
-    print('medications', medications)
 
     return medications
